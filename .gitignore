@@ -1,0 +1,12 @@
+*.dbg*
+*.uvguix
+*.uvguix.*
+*.htm
+*.o
+*.d
+*.axf
+*.hex
+*map
+*.sct
+*.lnp
+*.dep
