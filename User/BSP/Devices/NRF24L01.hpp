@@ -16,7 +16,6 @@ public:
         irq_sem_handle_ = osSemaphoreCreate(osSemaphore(irqSem), 1);
         osSemaphoreDef(spiSem);
         dma_sem_handle_ = osSemaphoreCreate(osSemaphore(spiSem), 1);
-//        HAL_SPI_RegisterCallback(hspi, HAL_SPI_TX_RX_COMPLETE_CB_ID, TransferCompleteCallback);
     }
     uint8_t Check(void);
     void SetTxMode(void);
@@ -36,9 +35,9 @@ private:
     SPI_HandleTypeDef *hspi_;
     GPIO_TypeDef *ce_gpio_port_, *csn_gpio_port_;
     uint16_t ce_pin_, csn_pin_;
-    //
+    // 信号量
     osSemaphoreId dma_sem_handle_, irq_sem_handle_;
-    //
+    // 寄存器
     uint8_t status;
     uint8_t observe_tx;
     #pragma pack(push, 1)
@@ -52,12 +51,7 @@ private:
     inline void ResetCE() { HAL_GPIO_WritePin(ce_gpio_port_, ce_pin_, GPIO_PIN_RESET); }
     inline void SetCSN() { HAL_GPIO_WritePin(csn_gpio_port_, csn_pin_, GPIO_PIN_SET); }
     inline void ResetCSN() { HAL_GPIO_WritePin(csn_gpio_port_, csn_pin_, GPIO_PIN_RESET); }
-//    uint8_t ReadWriteByte(uint8_t txData)
-//    {
-//        uint8_t rx_data;
-//        HAL_SPI_TransmitReceive(hspi_, &txData, &rx_data, 1, 1000);
-//        return rx_data;
-//    }
+
     uint8_t TransmitDMA(size_t len)
     {
         HAL_StatusTypeDef result;

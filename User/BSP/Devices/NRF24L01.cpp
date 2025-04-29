@@ -102,8 +102,6 @@ void NRF24L01::SetTxMode(void)
     ResetCE();
     WriteBuf(NRF_WRITE_REG | TX_ADDR, (uint8_t*)TX_ADDRESS, TX_ADR_WIDTH);
 	WriteBuf(NRF_WRITE_REG | RX_ADDR_P0, (uint8_t*)TX_ADDRESS, TX_ADR_WIDTH);
-//	WriteReg(NRF_WRITE_REG | EN_AA, 0x01);
-//	WriteReg(NRF_WRITE_REG | EN_RXADDR, 0x01);
 	WriteReg(NRF_WRITE_REG | SETUP_RETR, 0xff);//0xff 0x1a
 	WriteReg(NRF_WRITE_REG | RF_CH, 40);
 	WriteReg(NRF_WRITE_REG | RF_SETUP, 0x0f);//0x03
@@ -117,8 +115,6 @@ void NRF24L01::SetRxMode(void)
 {
     ResetCE();
     WriteBuf(NRF_WRITE_REG | RX_ADDR_P0, (uint8_t*)RX_ADDRESS, 5);
-//  	WriteReg(NRF_WRITE_REG | EN_AA, 0x01);
-//  	WriteReg(NRF_WRITE_REG | EN_RXADDR, 0x01);
   	WriteReg(NRF_WRITE_REG | RF_CH, 40);
   	WriteReg(NRF_WRITE_REG | RX_PW_P0, RX_PLOAD_WIDTH);
   	WriteReg(NRF_WRITE_REG | RF_SETUP, 0x0f);//0x03
@@ -166,35 +162,47 @@ uint8_t NRF24L01::RxPacket(uint8_t *txBuf, size_t txLen, uint8_t *rxBuf, size_t 
     return 1;
 }
 
-//uint8_t NRF24L01::TxPacket(uint8_t *txBuf, size_t len)
-//{
-//    ResetCE();
-//    WriteBuf(WR_TX_PLOAD, txBuf, len);
-//    SetCE();
-//    osSemaphoreWait(irq_sem_handle_, osWaitForever);
-//    status = ReadReg(STATUS);
-//    WriteReg(NRF_WRITE_REG | STATUS, status);
-//    if (status & MAX_TX)
-//    {
-//        WriteReg(FLUSH_TX, 0xff);
-//        return MAX_TX;
-//    }
-//    if (status & TX_OK)
-//    {
-//        return TX_OK;
-//    }
-//    return 0xff;
-//}
+#ifdef NRF24L01_EXAMPLE
+#define NRF_IS_TX
+NRF24L01 nrf24l01(&hspi1, NRF24L01_CE_GPIO_Port, NRF24L01_CE_Pin, NRF24L01_CSN_GPIO_Port, NRF24L01_CSN_Pin);
 
-//uint8_t NRF24L01::RxPacket(uint8_t *rxBuf, size_t len)
-//{
-//    status = ReadReg(STATUS);
-//    WriteReg(NRF_WRITE_REG | STATUS, status);
-//    if (status & RX_OK)
-//    {
-//        ReadBuf(RD_RX_PLOAD, rxBuf, len);
-//        WriteReg(FLUSH_RX, 0xff);
-//        return 0;
-//    }
-//    return 1;
-//}
+void Comm_Task(void const * argument)
+{
+    while (!nrf24l01.Check())
+        HAL_Delay(100);
+    #ifdef NRF_IS_TX
+    nrf24l01.SetRxMode();
+    for (;;)
+    {
+        change(data);
+        data += 2;
+        nrf24l01.RxPacket(tx_data, sizeof(tx_data), rx_data, sizeof(rx_data));
+    }
+    #else
+    nrf24l01.SetTxMode();
+    for (;;)
+    {
+        change(data++);
+        nrf24l01.TxPacket(tx_data, sizeof(tx_data), rx_data, sizeof(rx_data));
+        HAL_Delay(1000);
+    }
+    #endif
+}
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if (hspi == &hspi1)
+    {
+        nrf24l01.TransferCompleteCallback();
+    }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == NRF24L01_IRQ_Pin)
+    {
+        nrf24l01.IRQCallback();
+    }
+}
+
+#endif
