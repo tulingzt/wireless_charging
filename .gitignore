@@ -10,3 +10,7 @@
 *.sct
 *.lnp
 *.dep
+*.iex
+
+MDK-ARM/.vscode/*
+
