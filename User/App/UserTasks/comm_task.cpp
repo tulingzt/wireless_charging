@@ -1,6 +1,4 @@
 #include "cmsis_os.h"
-#include "NRF24L01.hpp"
-#include "spi.h"
 
 extern "C"
 {
