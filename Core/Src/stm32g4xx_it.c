@@ -41,12 +41,11 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+extern void qi_send_complete_callback(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -59,7 +58,6 @@ extern DMA_HandleTypeDef hdma_hrtim1_m;
 extern DMA_HandleTypeDef hdma_hrtim1_a;
 extern DMA_HandleTypeDef hdma_hrtim1_b;
 extern DMA_HandleTypeDef hdma_tim4_ch1;
-extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim16;
 extern TIM_HandleTypeDef htim20;
 
@@ -171,7 +169,7 @@ void DebugMon_Handler(void)
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
-
+    qi_send_complete_callback();
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_tim4_ch1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
@@ -233,20 +231,6 @@ void TIM1_UP_TIM16_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM4 global interrupt.
-  */
-void TIM4_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM4_IRQn 0 */
-
-  /* USER CODE END TIM4_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim4);
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-
-  /* USER CODE END TIM4_IRQn 1 */
 }
 
 /**
